@@ -96,7 +96,7 @@ s32 bdev_check_bdi_valid(struct super_block *sb)
 			fsi->prev_eio |= SDFAT_EIO_BDI;
 			sdfat_log_msg(sb, KERN_ERR, "%s: block device is "
 				"eliminated.(bdi:%p)", __func__, sb->s_bdi);
-			sdfat_debug_warn_on(1);
+			//sdfat_debug_warn_on(1);
 		}
 		return -ENXIO;
 	}
