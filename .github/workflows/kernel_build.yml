@@ -33,9 +33,12 @@ jobs:
       
       - name: Building kernel
         run: ./build_kernel.sh
+
+      - name: Building kernel halium
+        run: ./build_kernel_halium.sh
+
       - name: Upload kernel
         uses: actions/upload-artifact@v3.1.0
         with:
           name: Kernel
-          path: arch/arm64/boot/Image
-      
+          path: kernel*.bin
