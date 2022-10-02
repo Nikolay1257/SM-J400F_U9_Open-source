@@ -339,7 +339,7 @@ void arm64_notify_die(const char *str, struct pt_regs *regs,
 		current->thread.fault_code = err;
 		force_sig_info(info->si_signo, info, current);
 	} else {
-		itm_dump();
+		//itm_dump();
 		die(str, regs, err);
 	}
 }
