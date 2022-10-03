@@ -1,12 +1,7 @@
-gce_instance:
-  image_project: ubuntu-os-cloud
-  image_name: ubuntu-2204-jammy-arm64-v20220712a
-  architecture: arm64
-  zone: us-central1-a
+container:
+  image: ubuntu:22.04
   cpu: 8
-  memory: 32GB
-  disk: 60
-  use_ssd: true
+  memory: 32G
 
 task:
   script: ./cirrus-ci.sh
