@@ -7,4 +7,4 @@ export CROSS_COMPILE=$(pwd)/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linu
 make exynos7570-j4lte_defconfig
 make -j$(nproc)
 cp arch/arm64/boot/Image kernel.bin
-make mrproper
+[ "x$DEV" != "x" ] || make mrproper
