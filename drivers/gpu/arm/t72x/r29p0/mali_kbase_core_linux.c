@@ -19,7 +19,7 @@
  * SPDX-License-Identifier: GPL-2.0
  *
  */
-//#define MALI_SEC_INTEGRATION  1
+#define MALI_SEC_INTEGRATION  1
 
 #include <mali_kbase.h>
 #include <mali_kbase_config_defaults.h>
