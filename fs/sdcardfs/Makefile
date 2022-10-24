@@ -3,4 +3,4 @@
 #
 
 subdir-ccflags-y += -Ifs
-obj-y += q/ 
+obj-y += $(CONFIG_ANDROID_MAJOR_VERSION)/ 
