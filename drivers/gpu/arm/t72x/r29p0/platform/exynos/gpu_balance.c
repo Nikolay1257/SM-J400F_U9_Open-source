@@ -153,8 +153,6 @@ bool balance_init(struct kbase_device *kbdev)
 {
 	bool ret = true;
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "power initialized\n");
-
 	/* Mali Soft reset */
 	MALI_WRITE_REG((GPU_IRQ_CLEAR), 0x00030781);
 	MALI_WRITE_REG((GPU_IRQ_MASK), 0x00000000);

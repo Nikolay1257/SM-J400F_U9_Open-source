@@ -37,7 +37,6 @@ static void gpu_ipa_trace_utilisation(struct kbase_device *kbdev)
 
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return ;
 	}
 
@@ -59,7 +58,6 @@ static unsigned int gpu_ipa_dvfs_max_allowed_freq(struct kbase_device *kbdev)
 	int max_step;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return 0xffffffff;
 	}
 
@@ -88,7 +86,6 @@ void gpu_ipa_dvfs_calc_norm_utilisation(struct kbase_device *kbdev)
 	gpu_dvfs_info *dvfs_cur_info;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return ;
 	}
 
@@ -122,7 +119,6 @@ int gpu_ipa_dvfs_get_norm_utilisation(struct kbase_device *kbdev)
 	int norm_utilisation = 0;
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return -1;
 	}
 
@@ -145,7 +141,6 @@ int kbase_platform_dvfs_freq_to_power(int freq)
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return -1;
 	}
 
@@ -182,7 +177,6 @@ int kbase_platform_dvfs_power_to_freq(int power)
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return -1;
 	}
 
@@ -210,7 +204,6 @@ void gpu_ipa_dvfs_get_utilisation_stats(struct mali_debug_utilisation_stats *sta
 	struct kbase_device *kbdev = pkbdev;
 	struct exynos_context *platform = (struct exynos_context *)kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return ;
 	}
 
@@ -232,7 +225,6 @@ int gpu_ipa_dvfs_max_lock(int clock)
 	struct exynos_context *platform = (struct exynos_context *)kbdev->platform_context;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return -ENODEV;
 	}
 
@@ -248,7 +240,6 @@ int gpu_ipa_dvfs_max_unlock(void)
 	struct exynos_context *platform = (struct exynos_context *)kbdev->platform_context;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return -ENODEV;
 	}
 
@@ -263,7 +254,6 @@ int get_ipa_dvfs_max_freq(void)
 	struct exynos_context *platform = (struct exynos_context *)kbdev->platform_context;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context (0x%p) is not initialized\n", __func__, platform);
 		return -ENODEV;
 	}
 

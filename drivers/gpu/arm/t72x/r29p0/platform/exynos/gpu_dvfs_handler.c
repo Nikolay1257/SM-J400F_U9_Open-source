@@ -71,8 +71,6 @@ int kbase_platform_dvfs_event(struct kbase_device *kbdev, u32 utilisation)
 		mutex_unlock(&platform->gpu_dvfs_handler_lock);
 	}
 
-	GPU_LOG(DVFS_DEBUG, DUMMY, 0u, 0u, "dvfs hanlder is called\n");
-
 	return 0;
 }
 
@@ -89,7 +87,6 @@ int gpu_dvfs_handler_init(struct kbase_device *kbdev)
 
 	gpu_set_target_clk_vol(platform->table[platform->step].clock, false);
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "dvfs handler initialized\n");
 	return 0;
 }
 
@@ -104,7 +101,6 @@ int gpu_dvfs_handler_deinit(struct kbase_device *kbdev)
 
 	gpu_pm_qos_command(platform, GPU_CONTROL_PM_QOS_DEINIT);
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "dvfs handler de-initialized\n");
 	return 0;
 }
 #else

@@ -88,8 +88,6 @@ static int gpu_dvfs_update_perf(struct kbase_device *kbdev)
 	platform->env_data.perf = perfmon;
 	spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "Current PERF: %d\n", platform->env_data.perf);
-
 	return 0;
 }
 
@@ -185,8 +183,6 @@ int gpu_dvfs_utilization_init(struct kbase_device *kbdev)
 
 	exynos_gpu_perf_init();
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "utilization module initialized\n");
-
 	return 0;
 }
 
@@ -197,8 +193,6 @@ int gpu_dvfs_utilization_deinit(struct kbase_device *kbdev)
 	DVFS_ASSERT(platform);
 
 	exynos_gpu_perf_deinit();
-
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "utilization module de-initialized\n");
 
 	return 0;
 }

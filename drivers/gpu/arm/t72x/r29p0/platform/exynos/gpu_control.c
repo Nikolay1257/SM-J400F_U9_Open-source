@@ -71,13 +71,11 @@ int gpu_control_set_voltage(struct kbase_device *kbdev, int voltage)
 	static int prev_voltage = -1;
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context is null\n", __func__);
 		return -ENODEV;
 	}
 
 
 	if (voltage < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: invalid voltage error (%d)\n", __func__, voltage);
 		return -1;
 	}
 
@@ -104,13 +102,11 @@ int gpu_control_set_clock(struct kbase_device *kbdev, int clock)
 	static int prev_clock = -1;
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context is null\n", __func__);
 		return -ENODEV;
 	}
 
 #ifdef CONFIG_MALI_DVFS
 	if (gpu_dvfs_get_level(clock) < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: mismatch clock error (%d)\n", __func__, clock);
 		return -1;
 	}
 #endif
@@ -147,7 +143,6 @@ int gpu_control_enable_clock(struct kbase_device *kbdev)
 	int ret = 0;
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context is null\n", __func__);
 		return -ENODEV;
 	}
 
@@ -166,7 +161,6 @@ int gpu_control_disable_clock(struct kbase_device *kbdev)
 	int ret = 0;
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context is null\n", __func__);
 		return -ENODEV;
 	}
 
@@ -191,7 +185,6 @@ int gpu_control_is_power_on(struct kbase_device *kbdev)
 	int ret = 0;
 	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context is null\n", __func__);
 		return -ENODEV;
 	}
 
@@ -262,18 +255,15 @@ int gpu_control_module_init(struct kbase_device *kbdev)
 	ctr_ops = gpu_get_control_ops();
 
 	if (gpu_power_init(kbdev) < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to initialize power\n", __func__);
 		goto out;
 	}
 
 	if (gpu_clock_init(kbdev) < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to initialize clock\n", __func__);
 		goto out;
 	}
 
 #ifdef CONFIG_REGULATOR
 	if (gpu_regulator_init(platform) < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to initialize regulator\n", __func__);
 		goto out;
 	}
 #endif /* CONFIG_REGULATOR */
@@ -281,7 +271,6 @@ int gpu_control_module_init(struct kbase_device *kbdev)
 #ifdef CONFIG_SOC_EXYNOS7570
 	if (platform->gpu_max_clock == 0) {
 		platform->gpu_max_clock = (u32)cal_dfs_get_max_freq(dvfs_g3d) / 1000;
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "Board. Max clock limit %d.\n", platform->gpu_max_clock);
 	}
 #endif
 

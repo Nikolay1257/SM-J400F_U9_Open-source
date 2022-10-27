@@ -463,7 +463,6 @@ static int exynos_secure_mode_enable(struct protected_mode_device *pdev)
 		goto secure_out;
 
 	if (!kbdev->protected_mode_support) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 		ret = -EINVAL;
 		goto secure_out;
 	}
@@ -476,8 +475,6 @@ static int exynos_secure_mode_enable(struct protected_mode_device *pdev)
 			PROT_G3D);
 
 	if (ret != DRMDRV_OK) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: CRC : failed to set secure buffer region by err 0x%x, physical addr 0x%08x\n",
-			__func__, ret, (unsigned int)kbdev->sec_sr_info.secure_crc_phys);
 		goto secure_out;
 	}
 #endif
@@ -485,13 +482,9 @@ static int exynos_secure_mode_enable(struct protected_mode_device *pdev)
 	ret = exynos_smc(SMC_PROTECTION_SET, 0,
 			PROT_G3D, SMC_PROTECTION_ENABLE);
 
-	GPU_LOG(DVFS_INFO, LSI_SECURE_WORLD_ENTER, 0u, 0u, "LSI_SECURE_WORLD_ENTER\n");
-
 	if (ret == SMC_TZPC_OK) {
 		ret = 0;
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: Enter Secure World by GPU\n", __func__);
 	} else {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: failed exynos_smc() ret : %d\n", __func__, ret);
 	}
 #endif /* defined(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION) */
 secure_out:
@@ -508,7 +501,6 @@ static int exynos_secure_mode_disable(struct protected_mode_device *pdev)
 		goto secure_out;
 
 	if (!kbdev->protected_mode_support) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 		ret = -EINVAL;
 		goto secure_out;
 	}
@@ -521,8 +513,6 @@ static int exynos_secure_mode_disable(struct protected_mode_device *pdev)
 			PROT_G3D);
 
 	if (ret != DRMDRV_OK) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: CRC : failed to unset secure buffer region by err 0x%x, physical addr 0x%08x\n",
-				__func__, ret, (unsigned int)kbdev->sec_sr_info.secure_crc_phys);
 		goto secure_out;
 	}
 #endif
@@ -530,13 +520,10 @@ static int exynos_secure_mode_disable(struct protected_mode_device *pdev)
 	ret = exynos_smc(SMC_PROTECTION_SET, 0,
 			PROT_G3D, SMC_PROTECTION_DISABLE);
 
-	GPU_LOG(DVFS_INFO, LSI_SECURE_WORLD_EXIT, 0u, 0u, "LSI_SECURE_WORLD_EXIT\n");
 
 	if (ret == SMC_TZPC_OK) {
 		ret = 0;
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: Exit Secure World by GPU\n", __func__);
 	} else {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: failed exynos_smc() ret : %d\n", __func__, ret);
 	}
 
 #endif /* defined(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION) */
@@ -554,12 +541,9 @@ static bool exynos_secure_mem_init(struct kbase_device *kbdev)
 			&kbdev->sec_sr_info.secure_crc_phys, &kbdev->sec_sr_info.secure_crc_sizes);
 
 	if (!ret) {
-		GPU_LOG(DVFS_WARNING, LSI_GPU_SECURE, 0u, 0u, "%s: supporting Secure Rendering ASP : region - 0x%08x, sizes - 0x%x\n",
-				__func__, (unsigned int)kbdev->sec_sr_info.secure_crc_phys, (unsigned int)kbdev->sec_sr_info.secure_crc_sizes);
 	}
 #endif
 	if (ret) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: can NOT support Secure Rendering, error %d\n", __func__, ret);
 		return false;
 	}
 
@@ -575,14 +559,11 @@ static int exynos_secure_mem_enable(struct kbase_device *kbdev, int ion_fd, u64 
 		goto secure_out;
 
 	if (!kbdev->protected_mode_support) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 		ret = -EINVAL;
 		goto secure_out;
 	}
 
 	if (!reg) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong input argument, reg %p\n",
-			__func__, reg);
 		goto secure_out;
 	}
 #if defined(CONFIG_ION) && defined(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION)
@@ -603,23 +584,17 @@ static int exynos_secure_mem_enable(struct kbase_device *kbdev, int ion_fd, u64 
 		} else {
 			client = ion_client_create(ion_exynos, "G3D");
 			if (IS_ERR(client)) {
-				GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: Failed to get ion_client of G3D\n",
-						__func__);
 				goto secure_out;
 			}
 
 			ion_handle = ion_import_dma_buf(client, ion_fd);
 
 			if (IS_ERR(ion_handle)) {
-				GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: Failed to get ion_handle of G3D\n",
-						__func__);
 				ion_client_destroy(client);
 				goto secure_out;
 			}
 
 			if (ion_phys(client, ion_handle, &phys, &len)) {
-				GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: Failed to get phys. addr of G3D\n",
-						__func__);
 				ion_free(client, ion_handle);
 				ion_client_destroy(client);
 				goto secure_out;
@@ -630,8 +605,6 @@ static int exynos_secure_mem_enable(struct kbase_device *kbdev, int ion_fd, u64 
 
 			ret = exynos_smc(SMC_DRM_SECBUF_CFW_PROT, phys, len, PROT_G3D);
 			if (ret != DRMDRV_OK) {
-				GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: failed to set secure buffer region of G3D buffer, phy 0x%08x, error 0x%x\n",
-					__func__, (unsigned int)phys, ret);
 				BUG();
 			}
 
@@ -642,7 +615,6 @@ static int exynos_secure_mem_enable(struct kbase_device *kbdev, int ion_fd, u64 
 		reg->len_by_ion = len;
 	}
 #else
-	GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 	ret = -EINVAL;
 #endif /* defined(CONFIG_ION) && defined(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION) */
 
@@ -661,14 +633,11 @@ static int exynos_secure_mem_disable(struct kbase_device *kbdev, struct kbase_va
 		goto secure_out;
 
 	if (!kbdev->protected_mode_support) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 		ret = -EINVAL;
 		goto secure_out;
 	}
 
 	if (!reg) {
-		GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong input argument, reg %p\n",
-			__func__, reg);
 		ret = -EINVAL;
 		goto secure_out;
 	}
@@ -681,13 +650,10 @@ static int exynos_secure_mem_disable(struct kbase_device *kbdev, struct kbase_va
 				reg->phys_by_ion, reg->len_by_ion, PROT_G3D);
 
 		if (ret != DRMDRV_OK) {
-			GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: failed to unset secure buffer region of G3D buffer, phys 0x%08x, error 0x%x\n",
-				__func__, (unsigned int)reg->phys_by_ion, ret);
 			BUG();
 		}
 	}
 #else
-	GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 	ret = -EINVAL;
 #endif /* defined(CONFIG_ION) && defined(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION) */
 

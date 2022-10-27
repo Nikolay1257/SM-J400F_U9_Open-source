@@ -543,7 +543,6 @@ void kbasep_js_cacheclean(struct kbase_device *kbdev)
 	/* Limit the number of loops to avoid a hang if the interrupt is missed */
 	u32 max_loops = KBASE_CLEAN_CACHE_MAX_LOOPS;
 
-	GPU_LOG(DVFS_INFO, LSI_SECURE_CACHE, 0u, 0u, "GPU CACHE WORKING for Secure Rendering\n");
 	/* use GPU_COMMAND completion solution */
 	/* clean the caches */
 	kbase_reg_write(kbdev, GPU_CONTROL_REG(GPU_COMMAND), GPU_COMMAND_CLEAN_CACHES);
@@ -556,7 +555,6 @@ void kbasep_js_cacheclean(struct kbase_device *kbdev)
 	kbase_reg_write(kbdev, GPU_CONTROL_REG(GPU_IRQ_CLEAR), CLEAN_CACHES_COMPLETED);
 	KBASE_DEBUG_ASSERT_MSG(kbdev->hwcnt.state != KBASE_INSTR_STATE_CLEANING,
 			"Instrumentation code was cleaning caches, but Job Management code cleared their IRQ - Instrumentation code will now hang.");
-	GPU_LOG(DVFS_INFO, LSI_SECURE_CACHE_END, 0u, 0u, "GPU CACHE WORKING for Secure Rendering\n");
 }
 #else
 static int kbase_jm_protected_entry(struct kbase_device *kbdev,

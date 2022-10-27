@@ -43,7 +43,6 @@ void dvfs_hwcnt_attach(void *dev)
 
 	vinstr_cli = kbasep_vinstr_attach_client_sec(kbdev->vinstr_ctx, 0, bitmap, (void *)(long)kbdev->hwcnt.hwcnt_fd, NULL);
 	if (vinstr_cli == NULL || kbdev->hwcnt.kctx == NULL) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "skip attach hwcnt \n");
 		return;
 	}
 	kbdev->hwcnt.kctx->vinstr_cli = vinstr_cli;
@@ -235,9 +234,7 @@ void dvfs_hwcnt_utilization_equation(struct kbase_device *kbdev)
 	ls = kbdev->hwcnt.resources.ls_issues / tripipe;
 	tex = kbdev->hwcnt.resources.tex_issues / tripipe;
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%llu, %llu, %llu, %llu\n", tripipe, arith, ls, tex);
 #ifdef CONFIG_MALI_SEC_HWCNT_VERT
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%llu, %llu, %llu, %llu\n", kbdev->hwcnt.resources.gpu_active, kbdev->hwcnt.resources.js0_active, kbdev->hwcnt.resources.tiler_active, kbdev->hwcnt.resources.external_read_bits);
 #endif
 
 	total_util = arith * 25 + ls * 40 + tex * 35;
@@ -265,9 +262,7 @@ void dvfs_hwcnt_utilization_equation(struct kbase_device *kbdev)
 		}
 	}
 	if (platform->hwcnt_bt_clk == true)
-		GPU_LOG(DVFS_INFO, LSI_HWCNT_BT_ON, 0u, debug_util, "hwcnt bt on\n");
 	else
-		GPU_LOG(DVFS_INFO, LSI_HWCNT_BT_OFF, 0u, debug_util, "hwcnt bt off\n");
 #ifdef CONFIG_MALI_SEC_HWCNT_VERT
 	if ((kbdev->hwcnt.resources.external_read_bits > 8500000) && ((kbdev->hwcnt.resources.js0_active * 100 / kbdev->hwcnt.resources.gpu_active) > 95)
 			&& (kbdev->hwcnt.resources.tiler_active < 20000000)) {
@@ -336,8 +331,6 @@ void dvfs_hwcnt_get_gpr_resource(struct kbase_device *kbdev, struct kbase_uk_hwc
 		shader_20 += *(acc_addr + mem_offset + MALI_SIZE_OF_HWCBLK * i + OFFSET_SHADER_20);
 		shader_21 += *(acc_addr + mem_offset + MALI_SIZE_OF_HWCBLK * i + OFFSET_SHADER_21);
 	}
-
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "[%d] [%d]\n", shader_20, shader_21);
 
 	dump->shader_20 = shader_20;
 	dump->shader_21 = shader_21;

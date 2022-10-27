@@ -216,7 +216,6 @@ static int gpu_dvfs_governor_booster(struct exynos_context *platform, int utiliz
 			((cur_weight - weight) > booster_threshold)) {
 		platform->step -= 2;
 		platform->down_requirement = platform->table[platform->step].down_staycount;
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "Booster Governor: G3D level 2 step\n");
 	} else if ((platform->step > gpu_dvfs_get_level(platform->gpu_max_clock)) &&
 			(utilization > platform->table[platform->step].max_threshold)) {
 		platform->step--;
@@ -279,7 +278,6 @@ static int gpu_dvfs_update_asv_table(struct exynos_context *platform)
 
 	cal_table_size = cal_dfs_get_rate_asv_table(dvfs_g3d, g3d_rate_volt);
 	if (!cal_table_size)
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "Failed get G3D ASV table\n");
 
 	for (i = 0; i < dvfs_table_size; i++) {
 		for (j = 0; j < cal_table_size; j++) {
@@ -287,7 +285,6 @@ static int gpu_dvfs_update_asv_table(struct exynos_context *platform)
 				voltage = g3d_rate_volt[j].volt;
 				if (voltage > 0) {
 					dvfs_table[i].voltage = g3d_rate_volt[j].volt;
-					GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "G3D   %dKhz ASV is %duV\n", dvfs_table[i].clock*1000, dvfs_table[i].voltage);
 				}
 			}
 		}
@@ -301,13 +298,11 @@ static int gpu_dvfs_update_asv_table(struct exynos_context *platform)
 	for (i = 0; i < dvfs_table_size; i++) {
 		if (platform->dynamic_abb_status) {
 			dvfs_table[i].asv_abb = get_match_abb(ID_G3D, dvfs_table[i].clock*1000);
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "DEVFREQ: %uKhz, ABB %u\n", dvfs_table[i].clock*1000, dvfs_table[i].asv_abb);
 		}
 
 		voltage = get_match_volt(ID_G3D, dvfs_table[i].clock*1000);
 		if (voltage > 0)
 			dvfs_table[i].voltage = voltage;
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "G3D %dKhz ASV is %duV\n", dvfs_table[i].clock*1000, dvfs_table[i].voltage);
 	}
 #endif
 	return 0;
@@ -324,7 +319,6 @@ int gpu_dvfs_governor_setting(struct exynos_context *platform, int governor_type
 	DVFS_ASSERT(platform);
 
 	if ((governor_type < 0) || (governor_type >= G3D_MAX_GOVERNOR_NUM)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid governor type (%d)\n", __func__, governor_type);
 		return -1;
 	}
 
@@ -371,7 +365,6 @@ int gpu_dvfs_governor_init(struct kbase_device *kbdev)
 	governor_type = platform->governor_type;
 #endif /* CONFIG_MALI_DVFS */
 	if (gpu_dvfs_governor_setting(platform, governor_type) < 0) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: fail to initialize governor\n", __func__);
 		return -1;
 	}
 

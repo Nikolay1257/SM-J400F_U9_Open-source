@@ -48,7 +48,6 @@ int gpu_pmqos_dvfs_min_lock(int level)
 	struct exynos_context *platform = (struct exynos_context *)pkbdev->platform_context;
 
 	if (!platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: platform context is not initialized\n", __func__);
 		return -ENODEV;
 	}
 
@@ -117,7 +116,6 @@ static ssize_t set_clock(struct device *dev, struct device_attribute *attr, cons
 
 	ret = kstrtoint(buf, 0, &clk);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
@@ -428,15 +426,12 @@ static ssize_t set_governor(struct device *dev, struct device_attribute *attr, c
 	ret = kstrtoint(buf, 0, &next_governor_type);
 
 	if ((next_governor_type < 0) || (next_governor_type >= G3D_MAX_GOVERNOR_NUM)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	ret = gpu_dvfs_governor_change(next_governor_type);
 
 	if (ret < 0) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u,
-				"%s: fail to set the new governor (%d)\n", __func__, next_governor_type);
 		return -ENOENT;
 	}
 
@@ -549,7 +544,6 @@ static ssize_t set_max_lock_dvfs(struct device *dev, struct device_attribute *at
 	} else {
 		ret = kstrtoint(buf, 0, &clock);
 		if (ret) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 			return -ENOENT;
 		}
 
@@ -559,7 +553,6 @@ static ssize_t set_max_lock_dvfs(struct device *dev, struct device_attribute *at
 
 		ret = gpu_dvfs_get_level(clock);
 		if ((ret < gpu_dvfs_get_level(platform->gpu_max_clock)) || (ret > gpu_dvfs_get_level(platform->gpu_min_clock))) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid clock value (%d)\n", __func__, clock);
 			return -ENOENT;
 		}
 
@@ -618,7 +611,6 @@ static ssize_t set_min_lock_dvfs(struct device *dev, struct device_attribute *at
 	} else {
 		ret = kstrtoint(buf, 0, &clock);
 		if (ret) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 			return -ENOENT;
 		}
 
@@ -628,7 +620,6 @@ static ssize_t set_min_lock_dvfs(struct device *dev, struct device_attribute *at
 
 		ret = gpu_dvfs_get_level(clock);
 		if ((ret < gpu_dvfs_get_level(platform->gpu_max_clock)) || (ret > gpu_dvfs_get_level(platform->gpu_min_clock))) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid clock value (%d)\n", __func__, clock);
 			return -ENOENT;
 		}
 
@@ -693,37 +684,30 @@ static ssize_t set_down_staycount(struct device *dev, struct device_attribute *a
 
 	tok = strsep(&sptr, " ,");
 	if (tok == NULL) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid input\n", __func__);
 		return -ENOENT;
 	}
 
 	ret = kstrtoint(tok, 0, &clock);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid input %d\n", __func__, clock);
 		return -ENOENT;
 	}
 
 	tok = strsep(&sptr, " ,");
 	if (tok == NULL) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid input\n", __func__);
 		return -ENOENT;
 	}
 
 	ret = kstrtoint(tok, 0, &down_staycount);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid input %d\n", __func__, down_staycount);
 		return -ENOENT;
 	}
 
 	level = gpu_dvfs_get_level(clock);
 	if (level < 0) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid clock value (%d)\n", __func__, clock);
 		return -ENOENT;
 	}
 
 	if ((down_staycount < MIN_DOWN_STAYCOUNT) || (down_staycount > MAX_DOWN_STAYCOUNT)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: down_staycount is out of range (%d, %d ~ %d)\n",
-			__func__, down_staycount, MIN_DOWN_STAYCOUNT, MAX_DOWN_STAYCOUNT);
 		return -ENOENT;
 	}
 
@@ -773,13 +757,11 @@ static ssize_t set_highspeed_clock(struct device *dev, struct device_attribute *
 
 	ret = kstrtoint(buf, 0, &highspeed_clock);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	ret = gpu_dvfs_get_level(highspeed_clock);
 	if ((ret < gpu_dvfs_get_level(platform->gpu_max_clock)) || (ret > gpu_dvfs_get_level(platform->gpu_min_clock))) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid clock value (%d)\n", __func__, highspeed_clock);
 		return -ENOENT;
 	}
 
@@ -832,12 +814,10 @@ static ssize_t set_highspeed_load(struct device *dev, struct device_attribute *a
 
 	ret = kstrtoint(buf, 0, &highspeed_load);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	if ((highspeed_load < 0) || (highspeed_load > 100)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid load value (%d)\n", __func__, highspeed_load);
 		return -ENOENT;
 	}
 
@@ -887,12 +867,10 @@ static ssize_t set_highspeed_delay(struct device *dev, struct device_attribute *
 
 	ret = kstrtoint(buf, 0, &highspeed_delay);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	if ((highspeed_delay < 0) || (highspeed_delay > 5)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid load value (%d)\n", __func__, highspeed_delay);
 		return -ENOENT;
 	}
 
@@ -935,8 +913,6 @@ static ssize_t set_wakeup_lock(struct device *dev, struct device_attribute *attr
 		platform->wakeup_lock = false;
 	else if (sysfs_streq("1", buf))
 		platform->wakeup_lock = true;
-	else
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid val - only [0 or 1] is available\n", __func__);
 
 	return count;
 }
@@ -973,12 +949,10 @@ static ssize_t set_polling_speed(struct device *dev, struct device_attribute *at
 	ret = kstrtoint(buf, 0, &polling_speed);
 
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	if ((polling_speed < 100) || (polling_speed > 1000)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: out of range [100~1000] (%d)\n", __func__, polling_speed);
 		return -ENOENT;
 	}
 
@@ -1024,8 +998,6 @@ static ssize_t set_tmu_control(struct device *dev, struct device_attribute *attr
 		platform->tmu_status = false;
 	} else if (sysfs_streq("1", buf))
 		platform->tmu_status = true;
-	else
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value - only [0 or 1] is available\n", __func__);
 
 	return count;
 }
@@ -1046,7 +1018,6 @@ static ssize_t show_norm_utilization(struct device *dev, struct device_attribute
 		ret = PAGE_SIZE-1;
 	}
 #else
-	GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: EXYNOS THERMAL build config is disabled\n", __func__);
 #endif /* CONFIG_EXYNOS_THERMAL */
 
 	return ret;
@@ -1073,7 +1044,6 @@ static ssize_t show_utilization_stats(struct device *dev, struct device_attribut
 		ret = PAGE_SIZE-1;
 	}
 #else
-	GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: EXYNOS THERMAL build config is disabled\n", __func__);
 #endif /* CONFIG_EXYNOS_THERMAL */
 
 	return ret;
@@ -1105,12 +1075,10 @@ static ssize_t set_debug_level(struct device *dev, struct device_attribute *attr
 
 	ret = kstrtoint(buf, 0, &debug_level);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	if ((debug_level <= DVFS_DEBUG_START) || (debug_level >= DVFS_DEBUG_END)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid debug level (%d)\n", __func__, debug_level);
 		return -ENOENT;
 	}
 
@@ -1148,12 +1116,10 @@ static ssize_t set_trace_level(struct device *dev, struct device_attribute *attr
 
 	ret = kstrtoint(buf, 0, &trace_level);
 	if (ret) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	if ((trace_level <= TRACE_START) || (trace_level >= TRACE_END)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid trace level (%d)\n", __func__, trace_level);
 		return -ENOENT;
 	}
 
@@ -1251,7 +1217,6 @@ static ssize_t show_hwcnt_dvfs(struct device *dev, struct device_attribute *attr
 		ret = PAGE_SIZE-1;
 	}
 #else
-	GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "G3D DVFS build config is disabled. You can not see\n");
 #endif /* CONFIG_MALI_DVFS */
 	return ret;
 }
@@ -1277,12 +1242,9 @@ static ssize_t set_hwcnt_dvfs(struct device *dev, struct device_attribute *attr,
 		platform->hwcnt_bt_clk = false;
 	} else if (sysfs_streq("1", buf))
 		platform->hwcnt_gathering_status = true;
-	else
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "invalid val -only [0 or 1] is accepted\n");
 
 	mutex_unlock(&kbdev->hwcnt.mlock);
 #else
-	GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "G3D DVFS build config is disabled. You can not set\n");
 #endif /* CONFIG_MALI_DVFS */
 	return count;
 }
@@ -1333,8 +1295,6 @@ static ssize_t set_hwcnt_gpr(struct device *dev, struct device_attribute *attr, 
 		kbdev->hwcnt.is_hwcnt_gpr_enable = false;
 	} else if (sysfs_streq("1", buf))
 		platform->hwcnt_gpr_status = true;
-	else
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "invalid val -only [0 or 1] is accepted\n");
 
 	mutex_unlock(&kbdev->hwcnt.mlock);
 	return count;
@@ -1385,8 +1345,6 @@ static ssize_t set_hwcnt_profile(struct device *dev, struct device_attribute *at
 		platform->hwcnt_profile = false;
 	else if (sysfs_streq("1", buf))
 		platform->hwcnt_profile = true;
-	else
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "invalid val -only [0 or 1] is accepted\n");
 
 	mutex_unlock(&kbdev->hwcnt.mlock);
 	return count;
@@ -1444,7 +1402,6 @@ static ssize_t show_hwcnt_tripipe(struct device *dev, struct device_attribute *a
 	kbdev->hwcnt.resources_log.tex_issues = 0;
 
 #else
-	GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "G3D DVFS build config is disabled. You can not see\n");
 #endif /* CONFIG_MALI_DVFS */
 	return ret;
 }
@@ -1587,7 +1544,6 @@ static ssize_t set_kernel_sysfs_max_lock_dvfs(struct kobject *kobj, struct kobj_
 	} else {
 		ret = kstrtoint(buf, 0, &clock);
 		if (ret) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 			return -ENOENT;
 		}
 
@@ -1597,7 +1553,6 @@ static ssize_t set_kernel_sysfs_max_lock_dvfs(struct kobject *kobj, struct kobj_
 
 		ret = gpu_dvfs_get_level(clock);
 		if ((ret < gpu_dvfs_get_level(platform->gpu_max_clock)) || (ret > gpu_dvfs_get_level(platform->gpu_min_clock))) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid clock value (%d)\n", __func__, clock);
 			return -ENOENT;
 		}
 
@@ -1680,7 +1635,6 @@ static ssize_t set_kernel_sysfs_min_lock_dvfs(struct kobject *kobj, struct kobj_
 	} else {
 		ret = kstrtoint(buf, 0, &clock);
 		if (ret) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 			return -ENOENT;
 		}
 
@@ -1690,7 +1644,6 @@ static ssize_t set_kernel_sysfs_min_lock_dvfs(struct kobject *kobj, struct kobj_
 
 		ret = gpu_dvfs_get_level(clock);
 		if ((ret < gpu_dvfs_get_level(platform->gpu_max_clock)) || (ret > gpu_dvfs_get_level(platform->gpu_min_clock))) {
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid clock value (%d)\n", __func__, clock);
 			return -ENOENT;
 		}
 
@@ -1838,15 +1791,12 @@ static ssize_t set_kernel_sysfs_governor(struct kobject *kobj, struct kobj_attri
 	}
 
 	if ((next_governor_type < 0) || (next_governor_type >= G3D_MAX_GOVERNOR_NUM)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: invalid value\n", __func__);
 		return -ENOENT;
 	}
 
 	ret = gpu_dvfs_governor_change(next_governor_type);
 
 	if (ret < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u,
-				"%s: fail to set the new governor (%d)\n", __func__, next_governor_type);
 		return -ENOENT;
 	}
 
@@ -1931,7 +1881,6 @@ static ssize_t show_kernel_sysfs_gpu_temp(struct kobject *kobj, struct kobj_attr
 
 
 	if (!gpu_thermal_conf_ptr) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "[Kernel group SYSFS] thermal driver does not ready\n");
 		return -ENODEV;
 	}
 
@@ -2017,186 +1966,151 @@ int gpu_create_sysfs_file(struct device *dev)
 #endif
 
 	if (device_create_file(dev, &dev_attr_clock)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [clock]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_vol)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [vol]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_power_state)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [power_state]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_asv_table)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [asv_table]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_dvfs_table)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs_table]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_time_in_state)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [time_in_state]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_utilization)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [utilization]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_perf)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [perf]\n");
 		goto out;
 	}
 #ifdef CONFIG_MALI_DVFS
 	if (device_create_file(dev, &dev_attr_dvfs)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_dvfs_governor)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs_governor]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_dvfs_max_lock_status)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs_max_lock_status]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_dvfs_min_lock_status)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs_min_lock_status]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_dvfs_max_lock)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs_max_lock]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_dvfs_min_lock)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [dvfs_min_lock]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_down_staycount)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [down_staycount]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_highspeed_clock)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [highspeed_clock]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_highspeed_load)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [highspeed_load]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_highspeed_delay)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [highspeed_delay]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_wakeup_lock)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [wakeup_lock]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_polling_speed)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [polling_speed]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_tmu)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [tmu]\n");
 		goto out;
 	}
 #ifdef CONFIG_CPU_THERMAL_IPA
 	if (device_create_file(dev, &dev_attr_norm_utilization)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [norm_utilization]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_utilization_stats)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [utilization_stats]\n");
 		goto out;
 	}
 #endif /* CONFIG_CPU_THERMAL_IPA */
 #endif /* CONFIG_MALI_DVFS */
 	if (device_create_file(dev, &dev_attr_debug_level)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [debug_level]\n");
 		goto out;
 	}
 #ifdef CONFIG_MALI_EXYNOS_TRACE
 	if (device_create_file(dev, &dev_attr_trace_level)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [trace_level]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_trace_dump)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [trace_dump]\n");
 		goto out;
 	}
 #endif /* CONFIG_MALI_EXYNOS_TRACE */
 #ifdef DEBUG_FBDEV
 	if (device_create_file(dev, &dev_attr_fbdev)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [fbdev]\n");
 		goto out;
 	}
 #endif
 
 #ifdef CONFIG_MALI_SEC_HWCNT
 	if (device_create_file(dev, &dev_attr_hwcnt_dvfs)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "Couldn't create sysfs file [hwcnt_dvfs]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_hwcnt_gpr)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "Couldn't create sysfs file [hwcnt_gpr]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_hwcnt_bt_state)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [hwcnt_bt_state]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_hwcnt_tripipe)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [hwcnt_tripipe]\n");
 		goto out;
 	}
 
 	if (device_create_file(dev, &dev_attr_hwcnt_profile)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "Couldn't create sysfs file [hwcnt_profile]\n");
 		goto out;
 	}
 #endif
 
 	if (device_create_file(dev, &dev_attr_gpu_status)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create sysfs file [gpu_status]\n");
 		goto out;
 	}
 
 #ifdef CONFIG_MALI_DEBUG_KERNEL_SYSFS
 	external_kobj = kobject_create_and_add("gpu", kernel_kobj);
 	if (!external_kobj) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't create Kobj for group [KERNEL - GPU]\n");
 		goto out;
 	}
 
 	retval = sysfs_create_group(external_kobj, &attr_group);
 	if (retval) {
 		kobject_put(external_kobj);
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "couldn't add sysfs group [KERNEL - GPU]\n");
 		goto out;
 	}
 #endif

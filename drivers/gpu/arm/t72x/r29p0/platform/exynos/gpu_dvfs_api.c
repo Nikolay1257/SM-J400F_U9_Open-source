@@ -92,8 +92,6 @@ static int gpu_check_target_clock(struct exynos_context *platform, int clock)
 	if (!platform->dvfs_status)
 		return target_clock;
 
-	GPU_LOG(DVFS_DEBUG, DUMMY, 0u, 0u, "clock: %d, min: %d, max: %d\n", clock, platform->min_lock, platform->max_lock);
-
 	if ((platform->min_lock > 0) && (platform->power_status) &&
 			((target_clock < platform->min_lock) || (platform->cur_clock < platform->min_lock)))
 		target_clock = platform->min_lock;
@@ -125,7 +123,6 @@ static int gpu_update_cur_level(struct exynos_context *platform)
 		platform->step = level;
 		spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
 	} else {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: invalid dvfs level returned %d gpu power %d\n", __func__, platform->cur_clock, gpu_is_power_on());
 		return -1;
 	}
 	return 0;
@@ -144,7 +141,6 @@ int gpu_set_target_clk_vol(int clk, bool pending_is_allowed)
 	DVFS_ASSERT(platform);
 
 	if (!gpu_control_is_power_on(pkbdev)) {
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: can't set clock and voltage in the power-off state!\n", __func__);
 		return -1;
 	}
 
@@ -154,7 +150,6 @@ int gpu_set_target_clk_vol(int clk, bool pending_is_allowed)
 	if (pending_is_allowed && platform->dvs_is_enabled) {
 		if (!platform->dvfs_pending && clk < platform->cur_clock) {
 			platform->dvfs_pending = clk;
-			GPU_LOG(DVFS_DEBUG, DUMMY, 0u, 0u, "pending to change the clock [%d -> %d\n", platform->cur_clock, platform->dvfs_pending);
 		} else if (clk > platform->cur_clock) {
 			platform->dvfs_pending = 0;
 		}
@@ -166,10 +161,6 @@ int gpu_set_target_clk_vol(int clk, bool pending_is_allowed)
 
 	if (platform->dvs_is_enabled || !platform->power_status) {
 		mutex_unlock(&platform->gpu_clock_lock);
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: can't control clock and voltage in dvs and power off %d %d\n",
-				__func__,
-				platform->dvs_is_enabled,
-				platform->power_status);
 		return 0;
 	}
 
@@ -177,8 +168,6 @@ int gpu_set_target_clk_vol(int clk, bool pending_is_allowed)
 	target_clk = gpu_check_target_clock(platform, clk);
 	if (target_clk < 0) {
 		mutex_unlock(&platform->gpu_clock_lock);
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u,
-				"%s: mismatch clock error (source %d, target %d)\n", __func__, clk, target_clk);
 		return -1;
 	}
 	target_vol = MAX(gpu_dvfs_get_voltage(target_clk) + platform->voltage_margin, platform->cold_min_vol);
@@ -194,8 +183,6 @@ int gpu_set_target_clk_vol(int clk, bool pending_is_allowed)
 	ret = gpu_update_cur_level(platform);
 	mutex_unlock(&platform->gpu_clock_lock);
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "clk[%d -> %d], vol[%d (margin : %d)]\n",
-		prev_clk, target_clk, gpu_get_cur_voltage(platform), platform->voltage_margin);
 
 	return ret;
 }
@@ -212,8 +199,6 @@ int gpu_set_target_clk_vol_pending(int clk)
 
 	target_clk = gpu_check_target_clock(platform, clk);
 	if (target_clk < 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u,
-				"%s: mismatch clock error (source %d, target %d)\n", __func__, clk, target_clk);
 		return -1;
 	}
 
@@ -231,8 +216,6 @@ int gpu_set_target_clk_vol_pending(int clk)
 	GPU_SET_CLK_VOL(kbdev, platform->cur_clock, target_clk, target_vol);
 	ret = gpu_update_cur_level(platform);
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "pending clk[%d -> %d], vol[%d (margin : %d)]\n",
-		prev_clk, target_clk, gpu_get_cur_voltage(platform), platform->voltage_margin);
 
 	return ret;
 }
@@ -248,7 +231,6 @@ int gpu_dvfs_boost_lock(gpu_dvfs_boost_command boost_command)
 		return 0;
 
 	if ((boost_command < GPU_DVFS_BOOST_SET) || (boost_command > GPU_DVFS_BOOST_END)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid boost command is called (%d)\n", __func__, boost_command);
 		return -1;
 	}
 
@@ -259,8 +241,6 @@ int gpu_dvfs_boost_lock(gpu_dvfs_boost_command boost_command)
 			gpu_dvfs_clock_lock(GPU_DVFS_MIN_LOCK, BOOST_LOCK, platform->boost_gpu_min_lock);
 		if (platform->boost_egl_min_lock)
 			gpu_pm_qos_command(platform, GPU_CONTROL_PM_QOS_EGL_SET);
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: boost mode is enabled (CPU: %d, GPU %d)\n",
-				__func__, platform->boost_egl_min_lock, platform->boost_gpu_min_lock);
 		break;
 	case GPU_DVFS_BOOST_UNSET:
 		platform->boost_is_enabled = false;
@@ -268,14 +248,10 @@ int gpu_dvfs_boost_lock(gpu_dvfs_boost_command boost_command)
 			gpu_dvfs_clock_lock(GPU_DVFS_MIN_UNLOCK, BOOST_LOCK, 0);
 		if (platform->boost_egl_min_lock)
 			gpu_pm_qos_command(platform, GPU_CONTROL_PM_QOS_EGL_RESET);
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: boost mode is disabled (CPU: %d, GPU %d)\n",
-				__func__, platform->boost_egl_min_lock, platform->boost_gpu_min_lock);
 		break;
 	case GPU_DVFS_BOOST_GPU_UNSET:
 		if (platform->boost_gpu_min_lock)
 			gpu_dvfs_clock_lock(GPU_DVFS_MIN_UNLOCK, BOOST_LOCK, 0);
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: boost mode is disabled (GPU %d)\n",
-				__func__, platform->boost_gpu_min_lock);
 		break;
 	default:
 		break;
@@ -299,7 +275,6 @@ int gpu_dvfs_clock_lock(gpu_dvfs_lock_command lock_command, gpu_dvfs_lock_type l
 		return 0;
 
 	if ((lock_type < TMU_LOCK) || (lock_type >= NUMBER_LOCK)) {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: invalid lock type is called (%d)\n", __func__, lock_type);
 		return -1;
 	}
 
@@ -308,7 +283,6 @@ int gpu_dvfs_clock_lock(gpu_dvfs_lock_command lock_command, gpu_dvfs_lock_type l
 		spin_lock_irqsave(&platform->gpu_dvfs_spinlock, flags);
 		if (gpu_dvfs_get_level(clock) < 0) {
 			spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "max lock error: invalid clock value %d\n", clock);
 			return -1;
 		}
 
@@ -329,15 +303,11 @@ int gpu_dvfs_clock_lock(gpu_dvfs_lock_command lock_command, gpu_dvfs_lock_type l
 		if ((platform->max_lock > 0) && (platform->cur_clock >= platform->max_lock))
 			gpu_set_target_clk_vol(platform->max_lock, false);
 
-		GPU_LOG(DVFS_DEBUG, LSI_GPU_MAX_LOCK, lock_type, clock,
-			"lock max clk[%d], user lock[%d], current clk[%d]\n",
-			platform->max_lock, platform->user_max_lock[lock_type], platform->cur_clock);
 		break;
 	case GPU_DVFS_MIN_LOCK:
 		spin_lock_irqsave(&platform->gpu_dvfs_spinlock, flags);
 		if (gpu_dvfs_get_level(clock) < 0) {
 			spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
-			GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "min lock error: invalid clock value %d\n", clock);
 			return -1;
 		}
 
@@ -359,9 +329,6 @@ int gpu_dvfs_clock_lock(gpu_dvfs_lock_command lock_command, gpu_dvfs_lock_type l
 						&& (platform->min_lock <= platform->max_lock))
 			gpu_set_target_clk_vol(platform->min_lock, false);
 
-		GPU_LOG(DVFS_DEBUG, LSI_GPU_MIN_LOCK, lock_type, clock,
-			"lock min clk[%d], user lock[%d], current clk[%d]\n",
-			platform->min_lock, platform->user_min_lock[lock_type], platform->cur_clock);
 		break;
 	case GPU_DVFS_MAX_UNLOCK:
 		spin_lock_irqsave(&platform->gpu_dvfs_spinlock, flags);
@@ -380,7 +347,6 @@ int gpu_dvfs_clock_lock(gpu_dvfs_lock_command lock_command, gpu_dvfs_lock_type l
 			platform->max_lock = 0;
 
 		spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
-		GPU_LOG(DVFS_DEBUG, LSI_GPU_MAX_LOCK, lock_type, clock, "unlock max clk\n");
 		break;
 	case GPU_DVFS_MIN_UNLOCK:
 		spin_lock_irqsave(&platform->gpu_dvfs_spinlock, flags);
@@ -399,7 +365,6 @@ int gpu_dvfs_clock_lock(gpu_dvfs_lock_command lock_command, gpu_dvfs_lock_type l
 			platform->min_lock = 0;
 
 		spin_unlock_irqrestore(&platform->gpu_dvfs_spinlock, flags);
-		GPU_LOG(DVFS_DEBUG, LSI_GPU_MIN_LOCK, lock_type, clock, "unlock min clk\n");
 		break;
 	default:
 		break;
@@ -417,7 +382,6 @@ void gpu_dvfs_timer_control(bool enable)
 	DVFS_ASSERT(platform);
 
 	if (!platform->dvfs_status) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: DVFS is disabled\n", __func__);
 		return;
 	}
 	if (kbdev->pm.backend.metrics.timer_active && !enable) {
@@ -459,8 +423,6 @@ int gpu_dvfs_on_off(bool enable)
 		gpu_set_target_clk_vol(platform->gpu_dvfs_config_clock, false);
 		mutex_unlock(&platform->gpu_dvfs_handler_lock);
 	} else {
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: impossible state to change dvfs status (current: %d, request: %d)\n",
-				__func__, platform->dvfs_status, enable);
 		return -1;
 	}
 

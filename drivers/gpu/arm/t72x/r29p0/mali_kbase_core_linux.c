@@ -4175,10 +4175,6 @@ static int kbase_device_suspend_dummy(struct device *dev)
 	}
 
 	if (!kbdev || !js_devdata || !platform) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "[G3D] error control of variable : kbase_device_suspend_dummy()\n");
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "    kbdev      [%p]\n", kbdev);
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "    js_devdata [%p]\n", js_devdata);
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "    platform   [%p]\n", platform);
 	}
 
 	/* we must be control RuntimePM schedule API */

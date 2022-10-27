@@ -18,25 +18,6 @@
 #ifndef _GPU_PLATFORM_H_
 #define _GPU_PLATFORM_H_
 
-#ifdef CONFIG_MALI_EXYNOS_TRACE
-#define GPU_LOG(level, code, gpu_addr, info_val, msg, args...) \
-do { \
-	if (level >= gpu_get_debug_level()) { \
-		printk(KERN_INFO "[G3D] "msg, ## args); \
-	} \
-	if (gpu_check_trace_code(KBASE_TRACE_CODE(code))) { \
-		KBASE_TRACE_ADD_EXYNOS(gpu_get_device_structure(), code, NULL, NULL, gpu_addr, info_val); \
-	} \
-} while (0)
-#else /* CONFIG_MALI_EXYNOS_TRACE */
-#define GPU_LOG(level, code, gpu_addr, info_val, msg, args...) \
-do { \
-	if (level >= gpu_get_debug_level()) { \
-		printk(KERN_INFO msg, ## args); \
-	} \
-} while (0)
-#endif /* CONFIG_MALI_EXYNOS_TRACE */
-
 #define GPU_DVFS_TABLE_LIST_SIZE(X)  ARRAY_SIZE(X)
 
 #define BMAX_RETRY_CNT 10

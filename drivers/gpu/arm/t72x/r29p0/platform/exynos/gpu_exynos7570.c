@@ -203,7 +203,6 @@ int gpu_power_init(struct kbase_device *kbdev)
 	if (!platform)
 		return -ENODEV;
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "power initialized\n");
 
 	return 0;
 }
@@ -214,7 +213,6 @@ int gpu_get_cur_clock(struct exynos_context *platform)
 		return -ENODEV;
 
 	if (!vclk_g3d) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: clock is not initialized\n", __func__);
 		return -1;
 	}
 	return cal_dfs_get_rate(dvfs_g3d)/KHZ;
@@ -232,30 +230,9 @@ int gpu_register_dump(void)
 #endif
 #ifdef MALI_SEC_INTEGRATION
 		/* MCS Value check */
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP,  0x10051224, __raw_readl(EXYNOS7420_VA_SYSREG + 0x1224),
-				"REG_DUMP: G3D_EMA_RF2_UHD_CON %x\n", __raw_readl(EXYNOS7420_VA_SYSREG + 0x1224));
 		/* G3D PMU */
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x105C4100, __raw_readl(EXYNOS_PMU_G3D_CONFIGURATION),
-				"REG_DUMP: EXYNOS_PMU_G3D_CONFIGURATION %x\n", __raw_readl(EXYNOS_PMU_G3D_CONFIGURATION));
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x105C4104, __raw_readl(EXYNOS_PMU_G3D_STATUS),
-				"REG_DUMP: EXYNOS_PMU_G3D_STATUS %x\n", __raw_readl(EXYNOS_PMU_G3D_STATUS));
 		/* G3D PLL */
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x105C6100, __raw_readl(EXYNOS_PMU_GPU_DVS_CTRL),
-				"REG_DUMP: EXYNOS_PMU_GPU_DVS_CTRL %x\n", __raw_readl(EXYNOS_PMU_GPU_DVS_CTRL));
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x10576104, __raw_readl(EXYNOS_PMU_GPU_DVS_STATUS),
-				"REG_DUMP: GPU_DVS_STATUS %x\n", __raw_readl(EXYNOS_PMU_GPU_DVS_STATUS));
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x10051234, __raw_readl(EXYNOS7420_VA_SYSREG + 0x1234),
-				"REG_DUMP: G3D_G3DCFG_REG0 %x\n", __raw_readl(EXYNOS7420_VA_SYSREG + 0x1234));
-
 #ifdef CONFIG_EXYNOS_BUSMONITOR
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x14A002F0, __raw_readl(g3d0_outstanding_regs + 0x2F0),
-				"REG_DUMP: read outstanding %x\n", __raw_readl(g3d0_outstanding_regs + 0x2F0));
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x14A003F0, __raw_readl(g3d0_outstanding_regs + 0x3F0),
-				"REG_DUMP: write outstanding %x\n", __raw_readl(g3d0_outstanding_regs + 0x3F0));
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x14A202F0, __raw_readl(g3d1_outstanding_regs + 0x2F0),
-				"REG_DUMP: read outstanding %x\n", __raw_readl(g3d1_outstanding_regs + 0x2F0));
-		GPU_LOG(DVFS_WARNING, LSI_REGISTER_DUMP, 0x14A203F0, __raw_readl(g3d1_outstanding_regs + 0x3F0),
-				"REG_DUMP: write outstanding %x\n", __raw_readl(g3d1_outstanding_regs + 0x3F0));
 #endif /* CONFIG_EXYNOS_BUSMONITOR */
 #endif /* MALI_SEC_INTEGRATION */
 
@@ -263,9 +240,7 @@ int gpu_register_dump(void)
 #ifdef CONFIG_REGULATOR
 	} else {
 #if defined(CONFIG_REGULATOR_S2MPS16)
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: Power Status %d, DVS Status %d\n", __func__, gpu_is_power_on(), s2m_get_dvs_is_on());
 #else
-		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "%s: Power Status %d\n", __func__, gpu_is_power_on());
 #endif
 	}
 #endif
@@ -286,7 +261,6 @@ static int gpu_set_clock(struct exynos_context *platform, int clk)
 
 	if (!gpu_is_power_on()) {
 		ret = -1;
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: can't set clock in the power-off state!\n", __func__);
 		goto err;
 	}
 #endif /* CONFIG_MALI_RT_PM */
@@ -295,8 +269,6 @@ static int gpu_set_clock(struct exynos_context *platform, int clk)
 
 	platform->cur_clock = cal_dfs_get_rate(dvfs_g3d)/KHZ;
 
-	GPU_LOG(DVFS_INFO, LSI_CLOCK_VALUE, g3d_rate/KHZ, platform->cur_clock,
-		"[id: %x] clock set: %ld, clock get: %d\n", dvfs_g3d, g3d_rate/KHZ, platform->cur_clock);
 
 #ifdef CONFIG_MALI_RT_PM
 err:
@@ -316,7 +288,6 @@ static int gpu_get_clock(struct kbase_device *kbdev)
 
 	vclk_g3d = devm_clk_get(kbdev->dev, "vclk_g3d");
 	if (IS_ERR(vclk_g3d)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to clk_get [vclk_g3d]\n", __func__);
 		return -1;
 	}
 
@@ -328,14 +299,12 @@ static int gpu_get_clock(struct kbase_device *kbdev)
 
 static int gpu_enable_clock(struct exynos_context *platform)
 {
-	GPU_LOG(DVFS_DEBUG, DUMMY, 0u, 0u, "%s: [vclk_g3d]\n", __func__);
 	clk_prepare_enable(vclk_g3d);
 	return 0;
 }
 
 static int gpu_disable_clock(struct exynos_context *platform)
 {
-	GPU_LOG(DVFS_DEBUG, DUMMY, 0u, 0u, "%s: [vclk_g3d]\n", __func__);
 	clk_disable_unprepare(vclk_g3d);
 	return 0;
 }
@@ -356,7 +325,6 @@ int gpu_clock_init(struct kbase_device *kbdev)
 	g3d1_outstanding_regs = ioremap(0x14A20000, SZ_1K);
 #endif /* CONFIG_EXYNOS_BUSMONITOR */
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "clock initialized\n");
 #else
 	vclk_g3d = clk_get(kbdev->dev, "vclk_g3d");
 	clk_prepare_enable(vclk_g3d);
@@ -369,7 +337,6 @@ int gpu_get_cur_voltage(struct exynos_context *platform)
 	int ret = 0;
 #ifdef CONFIG_REGULATOR
 	if (!g3d_regulator) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: regulator is not initialized\n", __func__);
 		return -1;
 	}
 
@@ -384,25 +351,21 @@ static int gpu_set_voltage(struct exynos_context *platform, int vol)
 		return 0;
 
 	if (!gpu_is_power_on()) {
-		GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "%s: can't set voltage in the power-off state!\n", __func__);
 		return -1;
 	}
 
 #ifdef CONFIG_REGULATOR
 	if (!g3d_regulator) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: regulator is not initialized\n", __func__);
 		return -1;
 	}
 
 	if (regulator_set_voltage(g3d_regulator, vol, regulator_max_support_volt) != 0) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to set voltage, voltage: %d\n", __func__, vol);
 		return -1;
 	}
 #endif /* CONFIG_REGULATOR */
 
 	platform->cur_voltage = gpu_get_cur_voltage(platform);
 
-	GPU_LOG(DVFS_DEBUG, LSI_VOL_VALUE, vol, platform->cur_voltage, "voltage set: %d, voltage get:%d\n", vol, platform->cur_voltage);
 
 	return 0;
 }
@@ -457,13 +420,11 @@ int gpu_regulator_init(struct exynos_context *platform)
 #ifdef CONFIG_MALI_DVFS
 	g3d_regulator = regulator_get(pkbdev->dev, "BUCK1");
 	if (IS_ERR(g3d_regulator)) {
-		GPU_LOG(DVFS_ERROR, DUMMY, 0u, 0u, "%s: failed to get BUCK1 regulator, 0x%p\n", __func__, g3d_regulator);
 		return -1;
 	}
 
 	regulator_max_support_volt = regulator_get_max_support_voltage(g3d_regulator);
 
-	GPU_LOG(DVFS_INFO, DUMMY, 0u, 0u, "regulator initialized\n");
 #endif
 
 	return 0;

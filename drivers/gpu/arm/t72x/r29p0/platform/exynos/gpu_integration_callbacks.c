@@ -143,7 +143,6 @@ void gpu_destroy_context(void *ctx)
 		kbdev->sec_sr_info.secure_flags_crc_asp = 0;
 #endif
 		kctx->enabled_TZASC = false;
-		GPU_LOG(DVFS_WARNING, LSI_GPU_SECURE, 0u, 0u, "%s: disable the protection mode, kctx : %p\n", __func__, kctx);
 
 #ifdef CONFIG_MALI_SEC_HWCNT
 		mutex_lock(&kbdev->hwcnt.mlock);
@@ -394,12 +393,9 @@ int gpu_vendor_secure_rendering_dispatch(struct kbase_context *kctx, struct kbas
 			kbdev->sec_sr_info.secure_flags_crc_asp = flags->crc_flags;
 
 			if (!flags->crc_flags) {
-				GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! ASP enabled. But, CRC flags is ZERO\n", __func__);
 				BUG();
 			}
-			GPU_LOG(DVFS_WARNING, LSI_GPU_SECURE, 0u, 0u, "%s: enable the protection mode, kctx : %p, flags : %X\n", __func__, kctx, flags->crc_flags);
 #else
-			GPU_LOG(DVFS_WARNING, LSI_GPU_SECURE, 0u, 0u, "%s: enable the protection mode, kctx : %p, NO use ASP feature.\n", __func__, kctx);
 #endif
 			kctx->enabled_TZASC = true;
 
@@ -410,7 +406,6 @@ int gpu_vendor_secure_rendering_dispatch(struct kbase_context *kctx, struct kbas
 			mutex_unlock(&kbdev->hwcnt.mlock);
 #endif
 		} else {
-			GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 		}
 
 		ret = 0;
@@ -425,8 +420,6 @@ int gpu_vendor_secure_rendering_dispatch(struct kbase_context *kctx, struct kbas
 #ifdef CONFIG_MALI_SEC_ASP_SECURE_BUF_CTRL
 			kbdev->sec_sr_info.secure_flags_crc_asp = 0;
 #endif
-			GPU_LOG(DVFS_WARNING, LSI_GPU_SECURE, 0u, 0u, "%s: disable the protection mode, kctx : %p\n", __func__, kctx);
-
 			kctx->enabled_TZASC = false;
 
 #ifdef CONFIG_MALI_SEC_HWCNT
@@ -436,7 +429,6 @@ int gpu_vendor_secure_rendering_dispatch(struct kbase_context *kctx, struct kbas
 			mutex_unlock(&kbdev->hwcnt.mlock);
 #endif
 		} else {
-			GPU_LOG(DVFS_ERROR, LSI_GPU_SECURE, 0u, 0u, "%s: wrong operation! DDK cannot support Secure Rendering\n", __func__);
 		}
 
 		ret = 0;
